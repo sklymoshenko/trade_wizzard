@@ -11,6 +11,7 @@ replace github.com/kejrak/xtb-client-go => ../xtb-client-go
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/gommon v0.4.2 // indirect

@@ -36,5 +36,6 @@ func XtbClient() (*xclient.Client, error) {
 		return nil, err
 	}
 
+	log.Println("XTB Client initialized")
 	return client, nil
 }

@@ -20,14 +20,8 @@ func NewOllama() *Ollama {
 		log.Fatal(err)
 	}
 
-	messages := []OllamaMessage{
-		{
-			Role:    "system",
-			Content: "You are a very proffesional and smart finance specialist. Provide brief analysis of the current market situation depending on news and events. It need to be understandable for a beginner. Always put at the end the news source of what lead you to some conclusion. For simple questions please answer without tradind analysis.",
-		},
-	}
-
-	return &Ollama{Client: client, Messages: messages}
+	log.Println("LLM client initialized")
+	return &Ollama{Client: client, Messages: []OllamaMessage{}}
 }
 
 func (o *Ollama) SendMessage(msg OllamaMessage) {
@@ -41,7 +35,7 @@ func (o *Ollama) Chat() OllamaMessage {
 
 	ctx := context.Background()
 	req := &api.ChatRequest{
-		Model:    "llama3.2",
+		Model:    "jarvis",
 		Messages: o.Messages,
 		Stream:   &stream,
 	}
