@@ -20,7 +20,15 @@ func (b *Bot) handleCommands(update *tgbotapi.Update) {
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Loading news for current day and making summary. Please wait...")
 		b.sendMessage(msg)
 
-		msg.Text = b.dayNewsSummary()
+		newsChan := make(chan string)
+		go b.dayNewsSummary(newsChan)
+
+		for news := range newsChan {
+			msg.Text = news
+			b.sendMessage(msg)
+		}
+
+		msg.Text = "News summary completed"
 		b.sendMessage(msg)
 		return
 	case "stop":
@@ -29,21 +37,31 @@ func (b *Bot) handleCommands(update *tgbotapi.Update) {
 	}
 }
 
-func (b *Bot) dayNewsSummary() string {
+func (b *Bot) dayNewsSummary(newsChan chan<- string) {
+	defer close(newsChan)
+
 	endTime := time.Now()
-	startTime := time.Now().Add(-24 * time.Hour)
+	startTime := time.Now().Add(-48 * time.Hour)
 	newsResponse, err := b.ApiClient.GetNews(endTime, startTime)
 
-	if err != nil || len(newsResponse.ReturnData) == 0 {
+	if err != nil {
 		log.Println("Error getting news", err)
-		return "Sorry, I can't get news summary for you now. Try again later"
+		newsChan <- "Sorry, I can't get news summary for you now. Try again later"
+		return
 	}
 
+	if len(newsResponse.ReturnData) == 0 {
+		newsChan <- "No news for today"
+		return
+	}
+
+	prompt := ""
+	b.Ollama.SendMessage(ollama.OllamaMessage{Role: "system", Content: "Provide brief summary for each news article. Make sure to include the title of the article in the summary."})
 	for _, news := range newsResponse.ReturnData {
-		b.Ollama.SendMessage(ollama.OllamaMessage{Role: "user", Content: news.Title + "\n" + news.Body + "\n" + news.TimeString})
+		prompt += "Title:" + news.Title + "\n" + "Body: " + news.Body + "\n" + "-------" + "\n"
+		b.Ollama.SendMessage(ollama.OllamaMessage{Role: "user", Content: prompt})
+		analysis := b.Ollama.Chat()
+		newsChan <- analysis.Content
+		// newsChan <- news.Title
 	}
-
-	analysis := b.Ollama.Chat()
-
-	return analysis.Content
 }

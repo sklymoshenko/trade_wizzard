@@ -70,7 +70,7 @@ func (b *Bot) Start() error {
 	updateConfig := tgbotapi.UpdateConfig{Offset: 0, Timeout: 60}
 	updates := tgBot.GetUpdatesChan(updateConfig)
 
-	go b.handleUpdates(updates)
+	b.handleUpdates(updates)
 	return nil
 }
 

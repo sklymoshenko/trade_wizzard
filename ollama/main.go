@@ -61,7 +61,7 @@ func (o *Ollama) StreamChat(responseChan chan<- OllamaMessage) {
 
 	ctx := context.Background()
 	req := &api.ChatRequest{
-		Model:    "llama3.2",
+		Model:    "jarvis",
 		Messages: o.Messages,
 	}
 
